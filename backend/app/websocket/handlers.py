@@ -436,11 +436,7 @@ class WebSocketHandler:
 
             elif event.event == "assign_role":
 
-                PermissionService.require_host(
-
-                    participant.role
-
-                )
+                PermissionService.require_playback_control(participant.role)
 
                 await self._assign_role(
 
@@ -475,11 +471,7 @@ class WebSocketHandler:
 
             elif event.event == "transfer_host":
 
-                PermissionService.require_host(
-
-                    participant.role
-
-                )
+                PermissionService.require_playback_control(participant.role)
 
                 await self._transfer_host(
 
