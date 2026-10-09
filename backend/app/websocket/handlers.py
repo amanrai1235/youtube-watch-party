@@ -19,6 +19,7 @@ from app.services.sync_service import SyncService
 from app.websocket.events import error_message, event_message
 
 from app.websocket.manager import RoomManager
+from backend.app.schemas import participant
 
 # ============================================================
 
@@ -76,9 +77,10 @@ class WebSocketHandler:
 
         self.sync_service = SyncService(db)
 
-    def _require_host_or_moderator(self, role: Role) -> None:
-        if role not in {Role.HOST, Role.MODERATOR}:
-            raise PermissionDenied("Only the host or a moderator can perform this action.")
+    
+def _require_host_or_moderator(self, role: Role) -> None:
+    PermissionService.require_host_or_moderator(role)
+
 
     # ============================================================
 
@@ -569,21 +571,17 @@ class WebSocketHandler:
 
             # ====================================================
 
+            
             elif event.event == "approve_request":
-
                 self._require_host_or_moderator(participant.role)
 
                 await self._resolve_action_request(
-
                     room_code,
-
                     participant_id,
-
                     event,
-
                     approved=True,
-
                 )
+
 
             # ====================================================
 
@@ -591,21 +589,17 @@ class WebSocketHandler:
 
             # ====================================================
 
+            
             elif event.event == "reject_request":
-
                 self._require_host_or_moderator(participant.role)
 
                 await self._resolve_action_request(
-
                     room_code,
-
                     participant_id,
-
                     event,
-
                     approved=False,
-
                 )
+
 
             # ====================================================
 
