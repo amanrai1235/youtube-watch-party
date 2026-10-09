@@ -1,0 +1,477 @@
+/* =========================================
+   WATCH PARTY — PREMIUM LANDING PAGE
+   Theme: Cinematic Black & Red
+========================================= */
+
+.app {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 28px 7%;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(229, 9, 20, 0.12), transparent 48%),
+    linear-gradient(180deg, #0a0a0a 0%, #080808 65%, #0b0b0b 100%);
+  color: #f5f5f5;
+}
+
+/* Background atmosphere */
+
+.background-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.glow-one {
+  position: absolute;
+  top: 90px;
+  left: -180px;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: rgba(229, 9, 20, 0.09);
+  filter: blur(120px);
+}
+
+.glow-two {
+  position: absolute;
+  right: -180px;
+  top: 330px;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: rgba(170, 0, 12, 0.08);
+  filter: blur(120px);
+}
+
+/* Brand */
+
+.brand {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: fit-content;
+  font-family: 'Manrope', sans-serif;
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.brand-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #ff2632, #b00610);
+  color: #ffffff;
+  box-shadow: 0 5px 24px rgba(229, 9, 20, 0.24);
+}
+
+/* Hero */
+
+.hero-section {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding-top: 76px;
+}
+
+.hero-content {
+  width: 100%;
+  max-width: 760px;
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 23px;
+  padding: 8px 14px;
+  border: 1px solid rgba(229, 9, 20, 0.3);
+  border-radius: 999px;
+  background: rgba(229, 9, 20, 0.08);
+  color: #ff5962;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.hero-content h1 {
+  margin: 0;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(42px, 6vw, 76px);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -3.5px;
+}
+
+.hero-content h1 span {
+  color: #e50914;
+}
+
+.subtitle {
+  max-width: 530px;
+  margin: 22px auto 0;
+  color: #a1a1aa;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+/* Room creation card */
+
+.room-card {
+  width: 100%;
+  max-width: 440px;
+  margin-top: 42px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+  background: linear-gradient(
+    145deg,
+    rgba(25, 25, 25, 0.96),
+    rgba(12, 12, 12, 0.98)
+  );
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.38),
+    0 0 45px rgba(229, 9, 20, 0.035);
+  text-align: left;
+  backdrop-filter: blur(16px);
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  margin-bottom: 26px;
+  padding: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  background: #090909;
+}
+
+.tab {
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #858585;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tab:hover {
+  color: #ffffff;
+}
+
+.tab.active {
+  background: #242424;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.room-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.room-card label {
+  margin-top: 8px;
+  color: #d4d4d4;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.room-card input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid #303030;
+  border-radius: 9px;
+  outline: none;
+  background: #0c0c0c;
+  color: #ffffff;
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.room-card input::placeholder {
+  color: #606060;
+}
+
+.room-card input:focus {
+  border-color: #e50914;
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.12);
+}
+
+/* Primary action */
+
+.primary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 49px;
+  margin-top: 14px;
+  padding: 13px 18px;
+  border: 1px solid #ff303a;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #f6121d, #c40812);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 7px 24px rgba(229, 9, 20, 0.18);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.primary-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 10px 32px rgba(229, 9, 20, 0.3);
+}
+
+.primary-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Feedback messages */
+
+.message {
+  margin-top: 15px;
+  padding: 11px 13px;
+  border: 1px solid rgba(229, 9, 20, 0.2);
+  border-radius: 8px;
+  background: rgba(229, 9, 20, 0.07);
+  color: #ff777e;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* Feature cards */
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: 930px;
+  margin-top: 75px;
+  padding-bottom: 35px;
+}
+
+.feature {
+  min-width: 0;
+  padding: 23px 21px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  background: linear-gradient(145deg, #191919ed, #0c0c0ced);
+  transition:
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    background 0.25s ease;
+}
+
+.feature:hover {
+  transform: translateY(-4px);
+  border-color: rgba(229, 9, 20, 0.4);
+  background: linear-gradient(145deg, #201112, #101010);
+}
+
+.feature-icon {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(229, 9, 20, 0.18);
+  border-radius: 11px;
+  background: rgba(229, 9, 20, 0.1);
+  color: #ff3944;
+  font-size: 20px;
+}
+
+.feature h3 {
+  margin: 0 0 9px;
+  color: #f4f4f5;
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.feature p {
+  margin: 0;
+  color: #929292;
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+/* Responsive design */
+
+@media (max-width: 760px) {
+  .app {
+    padding: 22px 5%;
+  }
+
+  .hero-section {
+    padding-top: 65px;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(40px, 9vw, 60px);
+    letter-spacing: -2px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .room-card {
+    max-width: 460px;
+    margin-top: 34px;
+    padding: 23px;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+    max-width: 460px;
+    gap: 12px;
+    margin-top: 45px;
+  }
+
+  .feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 18px;
+  }
+
+  .feature-icon {
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+
+  .feature h3 {
+    margin-top: 2px;
+  }
+}
+
+@media (max-width: 420px) {
+  .app {
+    padding: 18px 16px;
+  }
+
+  .brand {
+    font-size: 20px;
+  }
+
+  .brand-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .hero-section {
+    padding-top: 55px;
+  }
+
+  .hero-content h1 {
+    font-size: 39px;
+    letter-spacing: -1.8px;
+  }
+
+  .eyebrow {
+    font-size: 9px;
+    letter-spacing: 1.4px;
+  }
+
+  .room-card {
+    padding: 19px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.watch-party-quote {
+  margin: 18px auto 0;
+  color: #f5f5f5;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(15px, 2vw, 19px);
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 0.2px;
+  text-align: center;
+}
+
+.watch-party-quote::first-letter {
+  color: #e50914;
+}
+
+@media (max-width: 480px) {
+  .watch-party-quote {
+    max-width: 320px;
+    font-size: 15px;
+  }
+}
+
+/* Center landing page content on desktop */
+
+@media (min-width: 761px) {
+  .app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .app > .brand {
+    align-self: flex-start;
+  }
+
+  .hero-section {
+    width: 100%;
+    align-items: center;
+  }
+
+  .hero-content {
+    width: 100%;
+    max-width: 900px;
+    margin-inline: auto;
+  }
+
+  .room-card {
+    margin-inline: auto;
+  }
+
+  .features {
+    width: 100%;
+    margin-inline: auto;
+  }
+}
