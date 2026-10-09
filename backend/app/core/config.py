@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     app_name: str = "YouTube Watch Party API"
     environment: str = "development"
     database_url: str = "sqlite:///./watch_party.db"
-    frontend_url: str = "http://localhost:5173"
+    frontend_url: str = "https://youtube-watch-party-tan.vercel.app"
     room_code_length: int = 6
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=False, extra="ignore")
