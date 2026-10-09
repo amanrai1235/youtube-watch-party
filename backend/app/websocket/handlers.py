@@ -78,8 +78,8 @@ class WebSocketHandler:
         self.sync_service = SyncService(db)
 
     
-def _require_host_or_moderator(self, role: Role) -> None:
-    PermissionService.require_host_or_moderator(role)
+    def _require_host_or_moderator(self, role: Role) -> None:
+        PermissionService.require_host_or_moderator(role)
 
 
     # ============================================================
