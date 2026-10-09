@@ -19,7 +19,7 @@ from app.services.sync_service import SyncService
 from app.websocket.events import error_message, event_message
 
 from app.websocket.manager import RoomManager
-from backend.app.schemas import participant
+from app.schemas import participant
 
 # ============================================================
 
