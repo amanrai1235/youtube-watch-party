@@ -6,7 +6,7 @@ import './Room.css'
 
 
 
-const WS_BASE = 'ws://127.0.0.1:8000'
+const WS_BASE = 'wss://youtube-watch-party-api-zya9.onrender.com'
 
 
 

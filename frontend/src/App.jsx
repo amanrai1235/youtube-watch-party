@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Room from './pages/Room'
 import './App.css'
 
-const API_BASE = 'http://127.0.0.1:8000/api'
+const API_BASE = 'https://youtube-watch-party-api-zya9.onrender.com/api'
 
 function App() {
   const [mode, setMode] = useState('create')
