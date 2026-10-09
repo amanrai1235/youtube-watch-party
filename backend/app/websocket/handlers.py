@@ -418,7 +418,7 @@ class WebSocketHandler:
 
             }:
 
-                PermissionService.require_host(participant.role)
+                PermissionService.require_playback_control(participant.role)
 
                 await self._handle_playback(
 
