@@ -11,8 +11,7 @@ class PermissionService:
 
     @staticmethod
     def _normalize_role(role) -> str:
-        """Accept either a Role enum or a string role."""
-        value = getattr(role, "value", role)
+        alue = getattr(role, "value", role)
         return str(value).strip().upper()
 
     @classmethod

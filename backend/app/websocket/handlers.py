@@ -574,7 +574,6 @@ class WebSocketHandler:
             
             elif event.event == "approve_request":
                 self._require_host_or_moderator(participant.role)
-
                 await self._resolve_action_request(
                     room_code,
                     participant_id,
@@ -592,7 +591,6 @@ class WebSocketHandler:
             
             elif event.event == "reject_request":
                 self._require_host_or_moderator(participant.role)
-
                 await self._resolve_action_request(
                     room_code,
                     participant_id,
