@@ -84,6 +84,13 @@ const [copied, setCopied] = useState(false)
 
   const isHost = normalizedRole === 'HOST'
 
+  const formatTime = (seconds) => {
+    const total = Math.max(0, Math.floor(seconds || 0))
+    const mins = Math.floor(total / 60)
+    const secs = total % 60
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`
+  }
+
 
 
   const addNotification = (message, type = 'info') => {
@@ -2182,85 +2189,59 @@ const [copied, setCopied] = useState(false)
 
 
 
+          {/* Room state */}
+
           <div className="state-card">
 
+            <div className="state-item">
 
+              <span className="state-label">Video</span>
 
-            <div>
+              <strong className="state-value state-video" title={roomState.videoId || 'None'}>
 
-              <span>Video</span>
-
-
-
-              <strong>
-
-                {roomState.videoId ||
-
-                  'None'}
+                {roomState.videoId || 'None'}
 
               </strong>
 
             </div>
 
+            <div className="state-item">
 
+              <span className="state-label">Status</span>
 
-            <div>
+              <strong className={`state-value state-status ${roomState.isPlaying ? 'playing' : 'paused'}`}>
 
-              <span>Status</span>
+                <span className="status-indicator"></span>
 
-
-
-              <strong>
-
-                {roomState.isPlaying
-
-                  ? 'Playing'
-
-                  : 'Paused'}
+                {roomState.isPlaying ? 'Playing' : 'Paused'}
 
               </strong>
 
             </div>
 
+            <div className="state-item">
 
+              <span className="state-label">Time</span>
 
-            <div>
+              <strong className="state-value state-time">
 
-              <span>Time</span>
-
-
-
-              <strong>
-
-                {Math.floor(
-
-                  roomState.currentTime
-
-                )}
-
-                s
+                {formatTime(roomState.currentTime)} <span className="time-seconds">({Math.floor(roomState.currentTime || 0)}s)</span>
 
               </strong>
 
             </div>
 
+            <div className="state-item">
 
+              <span className="state-label">Version</span>
 
-            <div>
+              <strong className="state-value state-version">
 
-              <span>Version</span>
-
-
-
-              <strong>
-
-                {roomState.stateVersion}
+                v{roomState.stateVersion}
 
               </strong>
 
             </div>
-
-
 
           </div>
 
