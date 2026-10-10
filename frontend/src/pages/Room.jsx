@@ -16,6 +16,8 @@ const REACTIONS = ['❤️', '😂', '🔥', '👏', '😮']
 
 function Room({ roomCode, participantId, username, role }) {
 
+const [copied, setCopied] = useState(false)
+
   const socketRef = useRef(null)
 
   const playerRef = useRef(null)
@@ -1635,55 +1637,27 @@ function Room({ roomCode, participantId, username, role }) {
 
 
 
+
   /*
-
-   * Copy room link
-
+   * Copy room code
    */
+  
 
-  const handleCopyRoomLink =
+  const handleCopyRoomLink = async () => {
+    try {
+      await navigator.clipboard.writeText(roomCode)
 
-    async () => {
+      setCopied(true)
+      addNotification('Room code copied successfully!', 'success')
 
-      const link =
-
-        window.location.origin +
-
-        `/?room=${roomCode}`
-
-
-
-      try {
-
-        await navigator.clipboard.writeText(
-
-          link
-
-        )
-
-
-
-        addNotification(
-
-          'Room link copied.',
-
-          'success'
-
-        )
-
-      } catch {
-
-        addNotification(
-
-          'Could not copy room link.',
-
-          'error'
-
-        )
-
-      }
-
+      setTimeout(() => {
+        setCopied(false)
+      }, 2000)
+    } catch {
+      addNotification('Could not copy room code.', 'error')
     }
+  }
+
 
 
 
@@ -1797,17 +1771,15 @@ function Room({ roomCode, participantId, username, role }) {
 
 
 
+          
           <button
-
-            className="copy-room-button"
-
-            onClick={handleCopyRoomLink}
-
+            type="button"
+            onClick={handleCopyRoomCode}
+            className="copy-code-btn"
           >
-
-            Copy Link
-
+            {copied ? 'Copied!' : 'Copy Code'}
           </button>
+
 
         </div>
 
