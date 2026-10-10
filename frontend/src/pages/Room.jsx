@@ -1774,7 +1774,7 @@ const [copied, setCopied] = useState(false)
           
           <button
             type="button"
-            onClick={handleCopyRoomCode}
+            onClick={handleCopyRoomLink}
             className="copy-code-btn"
           >
             {copied ? 'Copied!' : 'Copy Code'}
