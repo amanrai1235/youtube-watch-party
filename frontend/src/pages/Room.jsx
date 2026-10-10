@@ -1658,29 +1658,12 @@ if (message.event === 'sync_state') {
 
    */
 
-  const handleRoleChange = (
-
-    userId,
-
-    newRole
-
-  ) => {
-
-    sendEvent(
-
-      'assign_role',
-
-      {
-
-        userId,
-
-        role: newRole,
-
-      }
-
-    )
-
-  }
+  const handleRoleChange = (userId, newRole) => {
+    sendEvent('assign_role', {
+      userId,
+      role: newRole,
+    })
+  }
 
 
 
