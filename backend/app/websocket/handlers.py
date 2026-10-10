@@ -400,6 +400,14 @@ class WebSocketHandler:
                 ),
 
             )
+            print(
+                "[ROLE DEBUG]",
+                "participant_id =", participant.id,
+                "username =", participant.username,
+                "role =", repr(participant.role),
+                "role_type =", type(participant.role).__name__,
+                "role_value =", repr(getattr(participant.role, "value", None)),
+            )
 
             return
 
