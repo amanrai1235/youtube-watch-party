@@ -437,8 +437,18 @@ class WebSocketHandler:
             # ====================================================
 
             elif event.event == "assign_role":
-                PermissionService.require_host(participant.role)
-                await self._assign_role(room_code, room.id, event)
+
+                PermissionService.require_playback_control(participant.role)
+
+                await self._assign_role(
+
+                    room_code,
+
+                    room.id,
+
+                    event,
+
+                )
 
             # ====================================================
 
@@ -581,6 +591,7 @@ class WebSocketHandler:
             
             elif event.event == "reject_request":
                 self._require_host_or_moderator(participant.role)
+
                 await self._resolve_action_request(
                     room_code,
                     participant_id,
