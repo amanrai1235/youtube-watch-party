@@ -40,8 +40,11 @@ def test_join_room():
 
 def test_duplicate_username_is_rejected():
     created = client.post("/api/rooms", json={"username": "Host2"}).json()
-    response = client.post(
-        f"/api/rooms/{created['room_code']}/join",
-        json={"username": "Host2"},
-    )
-    assert response.status_code == 409
+    with client.websocket_connect(
+        f"/ws/rooms/{created['room_code']}/{created['participant_id']}"
+    ):
+        response = client.post(
+            f"/api/rooms/{created['room_code']}/join",
+            json={"username": "Host2"},
+        )
+        assert response.status_code == 409

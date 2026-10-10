@@ -4,9 +4,10 @@ from fastapi import WebSocket, WebSocketDisconnect
 
 from pydantic import ValidationError
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models.participant import Role
+from app.models.participant import Participant, Role
 
 from app.schemas.websocket import WebSocketEvent
 
@@ -161,6 +162,8 @@ class WebSocketHandler:
 
             websocket,
 
+            role=participant.role,
+
         )
 
         self.room_service.mark_online(
@@ -178,6 +181,20 @@ class WebSocketHandler:
             self._sync_state(room)
 
         )
+
+        # Send existing pending action requests to connecting Host or Moderator.
+        if PermissionService.normalize_role(participant.role) in PermissionService.PLAYBACK_ROLES:
+            self._cleanup_stale_requests(room.room_code)
+            room_requests = ACTION_REQUESTS.get(room.room_code, {})
+            for pending_req in room_requests.values():
+                if pending_req.get("status") == "pending":
+                    await websocket.send_json(
+                        event_message(
+                            "action_requested",
+                            pending_req,
+                            pending_req.get("requestId"),
+                        )
+                    )
 
         # Tell existing users that somebody joined.
 
@@ -198,6 +215,8 @@ class WebSocketHandler:
                     "role": participant.role.value,
 
                     "online": True,
+
+                    "participants": self._participants_payload(room.id),
 
                 },
 
@@ -371,6 +390,11 @@ class WebSocketHandler:
 
             return
 
+        # Ensure fresh database snapshot so changes made by other
+        # connections (e.g. role promotions) are immediately visible.
+        self.db.rollback()
+        self.db.expire_all()
+
         room = self.room_service.get_room(room_code)
 
         participant = self.room_service.get_participant(
@@ -399,14 +423,6 @@ class WebSocketHandler:
 
                 ),
 
-            )
-            print(
-                "[ROLE DEBUG]",
-                "participant_id =", participant.id,
-                "username =", participant.username,
-                "role =", repr(participant.role),
-                "role_type =", type(participant.role).__name__,
-                "role_value =", repr(getattr(participant.role, "value", None)),
             )
 
             return
@@ -718,7 +734,7 @@ class WebSocketHandler:
 
         # Only normal participants need to request actions.
 
-        if role != Role.PARTICIPANT:
+        if PermissionService.normalize_role(role) != Role.PARTICIPANT.value:
 
             raise ValueError(
 
@@ -838,47 +854,35 @@ class WebSocketHandler:
 
         # Send the request to every Host and Moderator.
 
-        for user_id in self.manager.get_room_users(
+        privileged_users = set(self.manager.get_privileged_users(room_code))
 
-            room_code
+        for user_id in self.manager.get_room_users(room_code):
 
-        ):
+            user = self.room_service.get_participant(user_id)
 
-            user = self.room_service.get_participant(
+            if user and PermissionService.normalize_role(user.role) in PermissionService.PLAYBACK_ROLES:
 
-                user_id
+                privileged_users.add(user_id)
+
+        for user_id in privileged_users:
+
+            await self.manager.send_to_user(
+
+                room_code,
+
+                user_id,
+
+                event_message(
+
+                    "action_requested",
+
+                    request,
+
+                    request_id,
+
+                ),
 
             )
-
-            if user is None:
-
-                continue
-
-            if user.role in {
-
-                Role.HOST,
-
-                Role.MODERATOR,
-
-            }:
-
-                await self.manager.send_to_user(
-
-                    room_code,
-
-                    user_id,
-
-                    event_message(
-
-                        "action_requested",
-
-                        request,
-
-                        request_id,
-
-                    ),
-
-                )
 
     # ============================================================
 
@@ -1028,25 +1032,23 @@ class WebSocketHandler:
 
             }
 
-            # Notify Host/Moderator who resolved it.
+            # Notify all Hosts and Moderators so request is removed.
+            privileged_users = set(self.manager.get_privileged_users(room_code))
+            for u_id in self.manager.get_room_users(room_code):
+                u = self.room_service.get_participant(u_id, room.id)
+                if u and PermissionService.normalize_role(u.role) in PermissionService.PLAYBACK_ROLES:
+                    privileged_users.add(u_id)
 
-            await self.manager.send_to_user(
-
-                room_code,
-
-                resolver_id,
-
-                event_message(
-
-                    "action_request_resolved",
-
-                    resolved_payload,
-
-                    request_id,
-
-                ),
-
-            )
+            for u_id in privileged_users:
+                await self.manager.send_to_user(
+                    room_code,
+                    u_id,
+                    event_message(
+                        "action_request_resolved",
+                        resolved_payload,
+                        request_id,
+                    ),
+                )
 
             del room_requests[request_id]
 
@@ -1126,15 +1128,9 @@ class WebSocketHandler:
 
         # Tell all connected Host/Moderators as well.
 
-        for user_id in self.manager.get_room_users(
+        privileged_users = set(self.manager.get_privileged_users(room_code))
 
-            room_code
-
-        ):
-
-            if user_id == request["userId"]:
-
-                continue
+        for user_id in self.manager.get_room_users(room_code):
 
             user = self.room_service.get_participant(
 
@@ -1144,31 +1140,33 @@ class WebSocketHandler:
 
             )
 
-            if user and user.role in {
+            if user and PermissionService.normalize_role(user.role) in PermissionService.PLAYBACK_ROLES:
 
-                Role.HOST,
+                privileged_users.add(user_id)
 
-                Role.MODERATOR,
+        for user_id in privileged_users:
 
-            }:
+            if user_id == request["userId"]:
 
-                await self.manager.send_to_user(
+                continue
 
-                    room_code,
+            await self.manager.send_to_user(
 
-                    user_id,
+                room_code,
 
-                    event_message(
+                user_id,
 
-                        "action_request_resolved",
+                event_message(
 
-                        resolved_payload,
+                    "action_request_resolved",
 
-                        request_id,
+                    resolved_payload,
 
-                    ),
+                    request_id,
 
-                )
+                ),
+
+            )
 
         # Remove resolved request from memory.
 
@@ -1744,6 +1742,8 @@ class WebSocketHandler:
 
         self.db.commit()
 
+        self.manager.set_role(room_code, target.id, target.role.value)
+
         await self.manager.broadcast(
 
             room_code,
@@ -1760,6 +1760,8 @@ class WebSocketHandler:
 
                     "role": target.role.value,
 
+                    "participants": self._participants_payload(room_id),
+
                 },
 
                 event.request_id,
@@ -1767,6 +1769,35 @@ class WebSocketHandler:
             ),
 
         )
+
+        # If user is promoted to Moderator, send all existing pending requests
+        if target.role == Role.MODERATOR:
+
+            self._cleanup_stale_requests(room_code)
+
+            room_requests = ACTION_REQUESTS.get(room_code, {})
+
+            for pending_req in room_requests.values():
+
+                if pending_req.get("status") == "pending":
+
+                    await self.manager.send_to_user(
+
+                        room_code,
+
+                        target.id,
+
+                        event_message(
+
+                            "action_requested",
+
+                            pending_req,
+
+                            pending_req.get("requestId"),
+
+                        ),
+
+                    )
 
     # ============================================================
 
@@ -1884,6 +1915,8 @@ class WebSocketHandler:
 
                     "username": username,
 
+                    "participants": self._participants_payload(room_id),
+
                 },
 
                 event.request_id,
@@ -1988,6 +2021,10 @@ class WebSocketHandler:
 
         self.db.commit()
 
+        self.manager.set_role(room_code, current_host.id, Role.PARTICIPANT.value)
+
+        self.manager.set_role(room_code, target.id, Role.HOST.value)
+
         await self.manager.broadcast(
 
             room_code,
@@ -2015,6 +2052,20 @@ class WebSocketHandler:
     # STATE PAYLOAD
 
     # ============================================================
+
+    def _participants_payload(self, room_id: str) -> list[dict]:
+        participants = self.db.scalars(
+            select(Participant).where(Participant.room_id == room_id)
+        ).all()
+        return [
+            {
+                "userId": p.id,
+                "username": p.username,
+                "role": getattr(p.role, "value", str(p.role)),
+                "online": p.online,
+            }
+            for p in participants
+        ]
 
     def _state_payload(
 
@@ -2054,10 +2105,13 @@ class WebSocketHandler:
 
     ) -> dict:
 
+        payload = self._state_payload(room)
+        payload["participants"] = self._participants_payload(room.id)
+
         return event_message(
 
             "sync_state",
 
-            self._state_payload(room),
+            payload,
 
         )

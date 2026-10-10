@@ -72,15 +72,17 @@ const [copied, setCopied] = useState(false)
 
 
 
+  const normalizedRole = String(currentRole || '').trim().toUpperCase()
+
   const isPrivileged =
 
-    currentRole === 'HOST' ||
+    normalizedRole === 'HOST' ||
 
-    currentRole === 'MODERATOR'
+    normalizedRole === 'MODERATOR'
 
 
 
-  const isHost = currentRole === 'HOST'
+  const isHost = normalizedRole === 'HOST'
 
 
 
@@ -300,6 +302,12 @@ const [copied, setCopied] = useState(false)
                 online: participant.online !== false,
               }))
             )
+            const selfUser = payload.participants.find(
+              (p) => (p.userId || p.id) === participantId
+            )
+            if (selfUser && selfUser.role) {
+              setCurrentRole(String(selfUser.role).trim().toUpperCase())
+            }
           } else {
             setParticipants((current) => {
               const exists = current.some(
@@ -522,7 +530,7 @@ const [copied, setCopied] = useState(false)
 
          */
 
-        if (message.event === 'video_changed') {
+        if (message.event === 'video_changed' || message.event === 'change_video') {
 
           setRoomState(message.payload)
 
@@ -567,13 +575,22 @@ const [copied, setCopied] = useState(false)
           const assignedUserId = user.userId || user.participantId
           const assignedRole = String(user.role || '').trim().toUpperCase()
 
-          setParticipants((current) =>
-            current.map((participant) =>
-              participant.userId === assignedUserId
-                ? { ...participant, role: assignedRole }
-                : participant
+          if (Array.isArray(user.participants)) {
+            setParticipants(
+              user.participants.map((p) => ({
+                ...p,
+                online: p.online !== false,
+              }))
             )
-          )
+          } else {
+            setParticipants((current) =>
+              current.map((participant) =>
+                participant.userId === assignedUserId
+                  ? { ...participant, role: assignedRole }
+                  : participant
+              )
+            )
+          }
 
           if (assignedUserId === participantId && assignedRole) {
             setCurrentRole(assignedRole)
@@ -582,6 +599,38 @@ const [copied, setCopied] = useState(false)
           addNotification(
             `${user.username || 'Participant'} is now ${assignedRole.toLowerCase()}.`,
             'success'
+          )
+        }
+
+        /*
+         * Participant removed
+         */
+        if (message.event === 'participant_removed') {
+          const payload = message.payload || {}
+          if (payload.userId === participantId) {
+            addNotification('You were removed from the room by the host.', 'error')
+            setTimeout(() => {
+              window.location.reload()
+            }, 1500)
+            return
+          }
+
+          if (Array.isArray(payload.participants)) {
+            setParticipants(
+              payload.participants.map((p) => ({
+                ...p,
+                online: p.online !== false,
+              }))
+            )
+          } else {
+            setParticipants((current) =>
+              current.filter((p) => p.userId !== payload.userId)
+            )
+          }
+
+          addNotification(
+            `${payload.username || 'A participant'} was removed from the room.`,
+            'info'
           )
         }
 
@@ -802,6 +851,16 @@ const [copied, setCopied] = useState(false)
               )
 
             }
+
+          } else if (isPrivileged) {
+
+            addNotification(
+
+              `Request to ${request.action} for ${request.username || 'participant'} was ${request.status}.`,
+
+              request.status === 'approved' ? 'success' : 'info'
+
+            )
 
           }
 
