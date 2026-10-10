@@ -19,7 +19,6 @@ from app.services.sync_service import SyncService
 from app.websocket.events import error_message, event_message
 
 from app.websocket.manager import RoomManager
-from app.schemas import participant
 
 # ============================================================
 
@@ -77,10 +76,14 @@ class WebSocketHandler:
 
         self.sync_service = SyncService(db)
 
-    
     def _require_host_or_moderator(self, role: Role) -> None:
-        PermissionService.require_host_or_moderator(role)
-
+        """Allow Host and Moderator roles represented as enums or strings."""
+        role_value = getattr(role, "value", role)
+        role_value = str(role_value).strip().upper()
+        if role_value not in {"HOST", "MODERATOR"}:
+            raise PermissionDenied(
+                "Only the host or a moderator can perform this action."
+            )
 
     # ============================================================
 
@@ -438,7 +441,11 @@ class WebSocketHandler:
 
             elif event.event == "assign_role":
 
-                PermissionService.require_playback_control(participant.role)
+                PermissionService.require_host(
+
+                    participant.role
+
+                )
 
                 await self._assign_role(
 
@@ -473,7 +480,11 @@ class WebSocketHandler:
 
             elif event.event == "transfer_host":
 
-                PermissionService.require_playback_control(participant.role)
+                PermissionService.require_host(
+
+                    participant.role
+
+                )
 
                 await self._transfer_host(
 
@@ -571,16 +582,21 @@ class WebSocketHandler:
 
             # ====================================================
 
-            
             elif event.event == "approve_request":
-                self._require_host_or_moderator(participant.role)
-                await self._resolve_action_request(
-                    room_code,
-                    participant_id,
-                    event,
-                    approved=True,
-                )
 
+                self._require_host_or_moderator(participant.role)
+
+                await self._resolve_action_request(
+
+                    room_code,
+
+                    participant_id,
+
+                    event,
+
+                    approved=True,
+
+                )
 
             # ====================================================
 
@@ -588,17 +604,21 @@ class WebSocketHandler:
 
             # ====================================================
 
-            
             elif event.event == "reject_request":
+
                 self._require_host_or_moderator(participant.role)
 
                 await self._resolve_action_request(
-                    room_code,
-                    participant_id,
-                    event,
-                    approved=False,
-                )
 
+                    room_code,
+
+                    participant_id,
+
+                    event,
+
+                    approved=False,
+
+                )
 
             # ====================================================
 
@@ -1662,17 +1682,14 @@ class WebSocketHandler:
 
     ) -> None:
 
-        target_id = event.payload.get(
-
-            "userId"
-
+        target_id = (
+            event.payload.get("userId")
+            or event.payload.get("participantId")
+            or event.payload.get("targetUserId")
         )
-
-        role_value = event.payload.get(
-
-            "role"
-
-        )
+        role_value = event.payload.get("role")
+        role_value = getattr(role_value, "value", role_value)
+        role_value = str(role_value).strip().upper() if role_value is not None else None
 
         target = self.room_service.get_participant(
 
@@ -1690,7 +1707,10 @@ class WebSocketHandler:
 
             )
 
-        if target.role == Role.HOST:
+        current_target_role = str(
+            getattr(target.role, "value", target.role)
+        ).strip().upper()
+        if current_target_role == "HOST":
 
             raise ValueError(
 
